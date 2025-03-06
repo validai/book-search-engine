@@ -1,71 +1,81 @@
-import User from '../models/User';
-import { AuthenticationError } from 'apollo-server-express';
-import { signToken } from '../services/auth';
+import type { Request, Response } from 'express';
+import User, { IUser } from '../models/User.js';
+import { signToken } from '../services/auth.js';
 
-interface LoginArgs {
-  email: string;
-  password: string;
-}
+export const getSingleUser = async (req: Request, res: Response) => {
+  const foundUser = await User.findOne({
+    $or: [
+      { _id: req.user ? (req.user as { _id: string })._id : req.params.id },
+      { username: req.params.username }
+    ],
+  });
 
-interface UserArgs {
-  username: string;
-  email: string;
-  password: string;
-}
+  if (!foundUser) {
+    return res.status(400).json({ message: 'Cannot find a user with this id!' });
+  }
 
-interface SaveBookArgs {
-  input: {
-    bookId: string;
-    authors: string[];
-    description: string;
-    title: string;
-    image: string;
-    link: string;
-  };
-}
+  return res.json(foundUser);
+};
 
-interface RemoveBookArgs {
-  bookId: string;
-}
+export const createUser = async (req: Request, res: Response) => {
+  const user: IUser = await User.create(req.body);
 
-interface Context {
-  user?: { id: string };
-}
+  if (!user) {
+    return res.status(400).json({ message: 'Something is wrong!' });
+  }
 
-const resolvers = {
-  Query: {
-    me: async (_parent: unknown, _args: unknown, context: Context) => {
-      if (context.user) {
-        return User.findById(context.user.id);
-      }
-      throw new AuthenticationError('Not logged in');
-    },
-  },
-  Mutation: {
-    login: async (_parent: unknown, { email, password }: LoginArgs) => {
-      const user = await User.findOne({ email });
-      if (!user || !(await user.isCorrectPassword(password))) {
-        throw new AuthenticationError('Invalid credentials');
-      }
-      const token = signToken(user);
-      return { token, user };
-    },
-    addUser: async (_parent: unknown, { username, email, password }: UserArgs) => {
-      const user = await User.create({ username, email, password });
-      const token = signToken(user);
-      return { token, user };
-    },
-    saveBook: async (_parent: unknown, { input }: SaveBookArgs, context: Context) => {
-      if (!context.user) {
-        throw new AuthenticationError('Not logged in');
-      }
-      return User.findByIdAndUpdate(
-        context.user.id,
-        { $addToSet: { savedBooks: input } },
-        { new: true, runValidators: true }
-      );
-    },
-    removeBook: async (_parent: unknown, { bookId }: RemoveBookArgs, context: Context) => {
-      if (!context.user) {
-        throw new AuthenticationError('Not logged in');
-      }
+  const token = signToken(user.username, user.email, user._id.toString());
+
+  return res.json({ token, user });
+};
+
+export const login = async (req: Request, res: Response) => {
+  const user: IUser | null = await User.findOne({
+    $or: [{ username: req.body.username }, { email: req.body.email }]
+  });
+
+  if (!user) {
+    return res.status(400).json({ message: "Can't find this user" });
+  }
+
+  const correctPw = await user.isCorrectPassword(req.body.password);
+
+  if (!correctPw) {
+    return res.status(400).json({ message: 'Wrong password!' });
+  }
+
+  const token = signToken(user.username, user.email, user._id.toString());
+
+  return res.json({ token, user });
+};
+
+// save a book to a user's `savedBooks` field by adding it to the set (to prevent duplicates)
+// user comes from `req.user` created in the auth middleware function
+export const saveBook = async (req: Request, res: Response) => {
+  try {
+    const updatedUser = await User.findOneAndUpdate(
+      { _id: (req.user as { _id: string })._id },
+      { $addToSet: { savedBooks: req.body } },
+      { new: true, runValidators: true }
+    );
+    return res.json(updatedUser);
+  } catch (err) {
+    console.log(err);
+    return res.status(400).json(err);
+  }
+};
+
+// remove a book from `savedBooks`
+export const deleteBook = async (req: Request, res: Response) => {
+  const updatedUser = await User.findOneAndUpdate(
+    { _id: (req.user as { _id: string })._id },
+    { $pull: { savedBooks: { bookId: req.params.bookId } } },
+    { new: true }
+  );
+
+  if (!updatedUser) {
+    return res.status(404).json({ message: "Couldn't find user with this id!" });
+  }
+
+  return res.json(updatedUser);
+};

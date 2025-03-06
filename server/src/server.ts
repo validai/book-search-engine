@@ -8,9 +8,10 @@ import { authMiddleware } from './services/auth';
 
 dotenv.config();
 
-const app: Application = express();
+const app: Application = express(); // Ensure app is correctly typed
 const PORT = process.env.PORT || 3001;
 
+// Create Apollo Server
 const server = new ApolloServer({
   typeDefs,
   resolvers,
