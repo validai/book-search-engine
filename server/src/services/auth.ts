@@ -1,4 +1,4 @@
-// server/src/services/auth.ts
+
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import { AuthenticationError } from 'apollo-server-express';

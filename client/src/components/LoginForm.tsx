@@ -9,9 +9,19 @@ import type { User } from '../models/User';
 
 // biome-ignore lint/correctness/noEmptyPattern: <explanation>
 const LoginForm = ({}: { handleModalClose: () => void }) => {
-  const [userFormData, setUserFormData] = useState<User>({ username: '', email: '', password: '', savedBooks: [] });
+  const [userFormData, setUserFormData] = useState<User>({
+    _id: '',  // <-- Add this
+    username: '',
+    email: '',
+    password: '',
+    savedBooks: [],
+  });
+  
   const [validated] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
+  console.log("User Data Before Submission:", userFormData);
+console.log("API Response:", Response);
+
 
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
