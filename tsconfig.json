@@ -1,15 +1,13 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
-    "module": "ESNext", // Change this to an allowed value
-    "moduleResolution": "Node",
+    "target": "ES6",
+    "module": "CommonJS",
+    "rootDir": "./src",
     "outDir": "./dist",
-    "rootDir": "src",
     "strict": true,
-    "esModuleInterop": true, // Enable this flag
-    "allowSyntheticDefaultImports": true, // Enable this flag
-    "skipLibCheck": true
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
   },
-  "include": ["src", "server"],
-  "exclude": ["node_modules", "dist"]
+  "include": ["src"]
 }
