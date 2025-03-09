@@ -2,10 +2,10 @@ import express, { Application } from "express";
 import { ApolloServer } from "apollo-server-express";
 import dotenv from "dotenv";
 import * as path from "path";
-import db from "../config/connection";
-import typeDefs from "../schemas/typeDefs";
-import resolvers from "../schemas/resolvers";
-import { authMiddleware } from "../services/auth";
+import db from "./config/connection";
+import typeDefs from "./schemas/typeDefs";
+import resolvers from "./schemas/resolvers";
+import { authMiddleware } from "./services/auth";
 
 dotenv.config();
 
@@ -37,7 +37,8 @@ async function startServer() {
 
   db.once("open", () => {
     app.listen(PORT, () => {
-      console.log(`🚀 Server running at http://localhost:${PORT}${server.graphqlPath}`);
+      console.log(`🚀 Server running at http://localhost:${PORT}${server.graphqlPath || "/graphql"}`);
+
     });
   });
 }
