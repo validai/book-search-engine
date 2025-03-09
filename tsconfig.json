@@ -9,5 +9,8 @@
     "forceConsistentCasingInFileNames": true,
     "strict": true
   },
-  "include": ["src"]
+  
+    "include": ["server/src", "client/src"],
+    "exclude": ["dist", "node_modules"]
+  
 }
