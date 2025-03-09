@@ -1,11 +1,10 @@
 {
-  "extends": "./tsconfig.base.json",
   "compilerOptions": {
     "esModuleInterop": true,
-    "module": "CommonJS",
     "rootDir": "./src",
     "outDir": "./dist",
-    "typeRoots": ["./node_modules/@types", "./src/types"]
+    "module": "CommonJS",
+    "target": "ES2020"
   },
   "include": ["src"]
 }
