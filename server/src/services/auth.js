@@ -1,10 +1,16 @@
-import jwt from 'jsonwebtoken';
-import dotenv from 'dotenv';
-import { AuthenticationError } from 'apollo-server-express';
-dotenv.config();
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.authMiddleware = exports.signToken = exports.authenticateToken = void 0;
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const dotenv_1 = __importDefault(require("dotenv"));
+const apollo_server_express_1 = require("apollo-server-express");
+dotenv_1.default.config();
 const secret = process.env.JWT_SECRET_KEY || '';
 const expiration = '1h';
-export const authenticateToken = (req, res, next) => {
+const authenticateToken = (req, res, next) => {
     const authHeader = req.headers.authorization || '';
     let token = '';
     if (authHeader.startsWith('Bearer ')) {
@@ -14,7 +20,7 @@ export const authenticateToken = (req, res, next) => {
         return res.status(401).json({ message: 'Unauthorized' });
     }
     try {
-        const decoded = jwt.verify(token, secret);
+        const decoded = jsonwebtoken_1.default.verify(token, secret);
         req.user = decoded;
         next();
     }
@@ -22,11 +28,13 @@ export const authenticateToken = (req, res, next) => {
         return res.status(403).json({ message: 'Forbidden' });
     }
 };
-export const signToken = (username, email, _id) => {
+exports.authenticateToken = authenticateToken;
+const signToken = (username, email, _id) => {
     const payload = { username, email, _id };
-    return jwt.sign(payload, secret, { expiresIn: expiration });
+    return jsonwebtoken_1.default.sign(payload, secret, { expiresIn: expiration });
 };
-export const authMiddleware = ({ req }) => {
+exports.signToken = signToken;
+const authMiddleware = ({ req }) => {
     const authHeader = req.headers.authorization || '';
     let token = '';
     if (authHeader.startsWith('Bearer ')) {
@@ -36,10 +44,11 @@ export const authMiddleware = ({ req }) => {
         return req;
     }
     try {
-        const decoded = jwt.verify(token, secret);
+        const decoded = jsonwebtoken_1.default.verify(token, secret);
         return { user: decoded };
     }
     catch (err) {
-        throw new AuthenticationError('Invalid token');
+        throw new apollo_server_express_1.AuthenticationError('Invalid token');
     }
 };
+exports.authMiddleware = authMiddleware;
