@@ -1,19 +1,17 @@
-import type { Request, Response } from 'express';
-import express from 'express';
-import * as path from 'path';
+import { Router, type Request, type Response } from 'express';
+import path from 'path';
 import { fileURLToPath } from 'url';
+import apiRoutes from './api/index.js';
 
-const router = express.Router();
+const router = Router();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Debugging Statement - Check Routes Directory
-console.log('📂 Routes directory:', __dirname);
+router.use('/api', apiRoutes);
 
-// Serve up React frontend in production
-router.use('/api', (_req: Request, res: Response) => {
-    res.sendFile(path.join(__dirname, '../../client/dist/index.html'));
+router.use((req: Request, res: Response) => {
+  res.sendFile(path.resolve(__dirname, '../../client/build/index.html'));
 });
 
 export default router;
