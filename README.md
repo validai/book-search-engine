@@ -41,4 +41,4 @@ The Book Search Engine is a **MERN-stack application** that allows users to sear
 4. Connect the backend to MongoDB Atlas.
 
 ## License 
-This project is licensed under the MIT License.
+This search-engine is licensed under the MIT License.
