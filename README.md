@@ -21,7 +21,7 @@ The Book Search Engine is a **MERN-stack application** that allows users to sear
 ![Book Search Engine Preview](<>)
 
 ## Live Deployment
-🔗 [Deployed App](<>)
+ [Deployed App](<>)
 
 ## Installation
 1. Clone the repository:
